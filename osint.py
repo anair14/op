@@ -11,6 +11,7 @@ from flask import Flask, render_template, request, jsonify
 app = Flask(__name__)
 
 # def domain_lookup(domain):
+    # TODO: fix this, currently whois doesn't work. 
 #     try:
 #         w = whois.whois(domain)
 #         return w.text
@@ -19,6 +20,7 @@ app = Flask(__name__)
 
 
 def email_breach_check(email):
+    # ! TODO: Make sure to add HaveIBeenPwned API Key.
     api_url = f"https://haveibeenpwned.com/api/v3/breachedaccount/{email}"
     headers = {"User-Agent": "OSINT-TOOL"}
     try:
