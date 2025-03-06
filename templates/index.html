@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>OSINT Tool</h1>
+            <p>Search for email breaches, IP geolocation, and social media profiles</p>
+        </header>
+
+        <form id="search-form">
+            <div class="input-group">
+                <input type="text" id="email" name="email" placeholder="Enter email" aria-label="Email">
+                <input type="text" id="ip" name="ip" placeholder="Enter IP address" aria-label="IP Address">
+                <input type="text" id="username" name="username" placeholder="Enter username" aria-label="Username">
+            </div>
+            <button type="submit">Search</button>
+        </form>
+
+        <div id="results" class="results-container"></div>
+    </div>
+
+    <script>
+        document.getElementById('search-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const ip = document.getElementById('ip').value;
+            const username = document.getElementById('username').value;
+
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, ip, username })
+            });
+
+            const data = await response.json();
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';  // Clear previous results
+
+            if (data.email) {
+                const emailCard = document.createElement('div');
+                emailCard.classList.add('card');
+                emailCard.innerHTML = `
+                    <h3>Email Breach Status: ${data.email === 'No breaches found.' ? '✅ No breaches' : '❌ Breaches Found'}</h3>
+                    <pre>${JSON.stringify(data.email, null, 2)}</pre>
+                `;
+                resultsContainer.appendChild(emailCard);
+            }
+
+            if (data.ip) {
+                const ipCard = document.createElement('div');
+                ipCard.classList.add('card');
+                ipCard.innerHTML = `
+                    <h3>IP Geolocation:</h3>
+                    <pre>${JSON.stringify(data.ip, null, 2)}</pre>
+                `;
+                resultsContainer.appendChild(ipCard);
+            }
+
+            if (data.social_media) {
+                const smCard = document.createElement('div');
+                smCard.classList.add('card');
+                smCard.innerHTML = `
+                    <h3>Social Media Profiles:</h3>
+                    <ul>${Object.entries(data.social_media).map(([site, url]) => 
+                        `<li><a href="${url}" target="_blank">${site} ➡️ ${url}</a></li>`).join('')}
+                    </ul>
+                `;
+                resultsContainer.appendChild(smCard);
+            }
+        });
+    </script>
+</body>
+</html>
+
